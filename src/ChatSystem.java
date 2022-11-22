@@ -48,23 +48,9 @@ public class ChatSystem
                 // sent to the current group
                 System.out.println("Type a message + ENTER to send\n");
                 System.out.println("Type 'exit' to leave chat\n");
-                while(true)
-                {
-                    String message;
-                    message = sc.nextLine();
-                    if(message.equalsIgnoreCase(ChatSystem.TERMINATE))
-                    {
-                        finished = true;
-                        socket.leaveGroup(group);
-                        socket.close();
-                        break;
-                    }
-                    message = nickName + ": " + message;
-                    byte[] buffer = message.getBytes();
-                    DatagramPacket datagram = new
-                    DatagramPacket(buffer,buffer.length,group,port);
-                    socket.send(datagram);
-                }
+                
+                	sendMessage(sc, socket, group, port);
+                
             }
             catch(SocketException se)
             {
@@ -82,6 +68,37 @@ public class ChatSystem
 		int rnd1 = new Random().nextInt(adjectives.length);
 		int rnd2 = new Random().nextInt(adjectives.length);
 		nickName = adjectives[rnd1] + nouns[rnd2] + uniqueID;
+    }
+    
+    
+    public static void sendMessage(Scanner sc, MulticastSocket socket, InetAddress group, int port) {
+    	while(true)
+        {
+	    	String message;
+	        message = sc.nextLine();
+	        if(message.equalsIgnoreCase(ChatSystem.TERMINATE))
+	        {
+	            finished = true;
+	            try {
+					socket.leaveGroup(group);
+				} catch (IOException gr) {
+					System.out.println("Error disconnecting from socket");
+					gr.printStackTrace();
+				}
+	            socket.close();
+	            break;
+	        }
+	        message = nickName + ": " + message;
+	        byte[] buffer = message.getBytes();
+	        DatagramPacket datagram = new
+	        DatagramPacket(buffer,buffer.length,group,port);
+	        try {
+				socket.send(datagram);
+			} catch (IOException e) {
+				System.out.println("Error writing to socket");
+				e.printStackTrace();
+			}
+        }
     }
 }
     

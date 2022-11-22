@@ -1,11 +1,16 @@
 import java.net.*;
 import java.io.*;
 import java.util.*;
-public class ChatSystem
+
+public class ChatSystem 
 {
     private static final String TERMINATE = "Exit";
-    static String name;
+    static String nickName, temp;
     static volatile boolean finished = false;
+    private static String uniqueID = UUID.randomUUID().toString();
+	private static String[] autoAdj = {"Horrible", "Sweet", "Bland", "Crazy", "Memey", "Respectful", "Cautious", "Lumpy", "Stinky", "Sparkly"};
+	private static String[] autoNoun = {"Banana", "Plant", "Dog", "Box", "Bear", "Eye", "Cat", "Lawyer", "Sloth", "Doctor"};
+	
     public static void main(String[] args)
     {
             try
@@ -13,8 +18,20 @@ public class ChatSystem
                 InetAddress group = InetAddress.getByName("225.4.5.6");
                 int port = 8123; // port to communicate over
                 Scanner sc = new Scanner(System.in);
-                System.out.print("Enter your name: ");
-                name = sc.nextLine();
+                System.out.print("Welcome to MemeChat\n");
+                System.out.print("Enter username or press ENTER to skip: ");
+                temp = sc.nextLine();
+                
+                if(temp.length() > 0) {
+                	nickName = temp + "_" + uniqueID;
+                	System.out.print("Your nickname is " + nickName + "\n");
+                	
+                } else {
+                	setNickName(autoAdj, autoNoun, uniqueID);
+                	System.out.print("Your nickname is " + nickName + "\n");
+                }
+                
+                
                 MulticastSocket socket = new MulticastSocket(port);
               
                 // Since we are deploying
@@ -29,7 +46,8 @@ public class ChatSystem
                 t.start(); 
                   
                 // sent to the current group
-                System.out.println("Start typing messages...\n");
+                System.out.println("Type a message + ENTER to send\n");
+                System.out.println("Type 'exit' to leave chat\n");
                 while(true)
                 {
                     String message;
@@ -41,7 +59,7 @@ public class ChatSystem
                         socket.close();
                         break;
                     }
-                    message = name + ": " + message;
+                    message = nickName + ": " + message;
                     byte[] buffer = message.getBytes();
                     DatagramPacket datagram = new
                     DatagramPacket(buffer,buffer.length,group,port);
@@ -59,9 +77,16 @@ public class ChatSystem
                 ie.printStackTrace();
             }
     }
+    
+    public static void setNickName(String[] adjectives, String[] nouns, String UID) {
+		int rnd1 = new Random().nextInt(adjectives.length);
+		int rnd2 = new Random().nextInt(adjectives.length);
+		nickName = adjectives[rnd1] + nouns[rnd2] + uniqueID;
+    }
 }
-class ReadThread implements Runnable
-{
+    
+class ReadThread implements Runnable {
+	
     private MulticastSocket socket;
     private InetAddress group;
     private int port;
@@ -87,7 +112,7 @@ class ReadThread implements Runnable
                 socket.receive(datagram);
                 message = new
                 String(buffer,0,datagram.getLength(),"UTF-8");
-                if(!message.startsWith(ChatSystem.name))
+                if(!message.startsWith(ChatSystem.nickName))
                     System.out.println(message);
             }
             catch(IOException e)

@@ -10,29 +10,37 @@ public class ChatSystem
     private static String uniqueID = UUID.randomUUID().toString();
 	private static String[] autoAdj = {"Horrible", "Sweet", "Bland", "Crazy", "Memey", "Respectful", "Cautious", "Lumpy", "Stinky", "Sparkly"};
 	private static String[] autoNoun = {"Banana", "Plant", "Dog", "Box", "Bear", "Eye", "Cat", "Lawyer", "Sloth", "Doctor"};
-	
+	private static int port;
+	private static MulticastSocket socket;
     public static void main(String[] args)
     {
             try
             {
                 InetAddress group = InetAddress.getByName("225.4.5.6");
-                int port = 8123; // port to communicate over
+                port = 8123; // port to communicate over
                 Scanner sc = new Scanner(System.in);
                 System.out.print("Welcome to MemeChat\n");
                 System.out.print("Enter username or press ENTER to skip: ");
                 temp = sc.nextLine();
                 
                 if(temp.length() > 0) {
-                	nickName = temp + "_" + uniqueID;
-                	System.out.print("Your nickname is " + nickName + "\n");
-                	
+                	if(temp.equals("port_failure_sim")) {
+                		//A simulated failure on a node
+                		simulatePortFailure(8122);
+                		nickName = temp + "_" + uniqueID;
+                    	System.out.print("---SIMULATED FAILURE PORT---\n");
+                	} else {
+                		//Set nickname and attach a UUID
+                		nickName = temp + "_" + uniqueID;
+                    	System.out.print("Your nickname is " + nickName + "\n");
+                	}               	
                 } else {
                 	setNickName(autoAdj, autoNoun, uniqueID);
                 	System.out.print("Your nickname is " + nickName + "\n");
                 }
                 
                 
-                MulticastSocket socket = new MulticastSocket(port);
+                socket = new MulticastSocket(port);
               
                 // Since we are deploying
                 socket.setTimeToLive(0);
@@ -100,6 +108,16 @@ public class ChatSystem
 			}
         }
     }
+    
+    public static void simulatePortFailure(int portnum) {
+    	//Simulate a socket read/write failure
+    	ChatSystem.port = portnum;
+    }
+
+	public static int getPort() {
+		return port;
+	}
+
 }
     
 class ReadThread implements Runnable {

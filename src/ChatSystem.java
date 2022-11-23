@@ -1,6 +1,10 @@
 import java.net.*;
 import java.io.*;
 import java.util.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class ChatSystem 
 {
@@ -10,8 +14,10 @@ public class ChatSystem
     private static String uniqueID = UUID.randomUUID().toString();
 	private static String[] autoAdj = {"Horrible", "Sweet", "Bland", "Crazy", "Memey", "Respectful", "Cautious", "Lumpy", "Stinky", "Sparkly"};
 	private static String[] autoNoun = {"Banana", "Plant", "Dog", "Box", "Bear", "Eye", "Cat", "Lawyer", "Sloth", "Doctor"};
-	private static int port;
+	private static int port, chatId = 0;
 	private static MulticastSocket socket;
+	private static ArrayList<String> chatLog = new ArrayList<String>();
+	
     public static void main(String[] args)
     {
             try
@@ -24,16 +30,11 @@ public class ChatSystem
                 temp = sc.nextLine();
                 
                 if(temp.length() > 0) {
-                	if(temp.equals("port_failure_sim")) {
-                		//A simulated failure on a node
-                		simulatePortFailure(8122);
-                		nickName = temp + "_" + uniqueID;
-                    	System.out.print("---SIMULATED FAILURE PORT---\n");
-                	} else {
+                	
                 		//Set nickname and attach a UUID
                 		nickName = temp + "_" + uniqueID;
                     	System.out.print("Your nickname is " + nickName + "\n");
-                	}               	
+                	              	
                 } else {
                 	setNickName(autoAdj, autoNoun, uniqueID);
                 	System.out.print("Your nickname is " + nickName + "\n");
@@ -57,7 +58,7 @@ public class ChatSystem
                 System.out.println("Type a message + ENTER to send\n");
                 System.out.println("Type 'exit' to leave chat\n");
                 
-                	sendMessage(sc, socket, group, port);
+                sendMessage(sc, socket, group, port);
                 
             }
             catch(SocketException se)
@@ -95,6 +96,8 @@ public class ChatSystem
 				}
 	            socket.close();
 	            break;
+	        } else if (message.contains("&~")) {
+	        	commandChecker(message);
 	        }
 	        message = nickName + ": " + message;
 	        byte[] buffer = message.getBytes();
@@ -102,6 +105,7 @@ public class ChatSystem
 	        DatagramPacket(buffer,buffer.length,group,port);
 	        try {
 				socket.send(datagram);
+				logChat(message);
 			} catch (IOException e) {
 				System.out.println("Error writing to socket");
 				e.printStackTrace();
@@ -117,9 +121,51 @@ public class ChatSystem
 	public static int getPort() {
 		return port;
 	}
+	
+	public static void logChat(String chatItem) {
+		LocalDateTime date = LocalDateTime.now();
+	    DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+	    String formattedDate = date.format(dateFormat);
+	    //System.out.println("After formatting: " + formattedDate);
+	    
+	    //Increment chatId
+	    ChatSystem.chatId = ChatSystem.chatId++;
+        String logContent = formattedDate + chatItem;
+        ChatSystem.chatLog.add(logContent);
+	}
+	
+	public static void syncChatLog() {
+		//Get all other chat logs from other nodes, order by datetime
+		
+	}
+	
+	public static void sendChatLog() {
+		//Update new nodes with any previous chat logs
+		
+		
+	}
+	
+	public static void printLocalChatLogs() {
+		System.out.println(chatLog);
+	}
+	
+	public static void commandChecker(String command) {
+		switch(command) {
+		  case "&~port_failure_sim":
+			  System.out.print("---SIMULATED FAILURE PORT---\n");
+			  simulatePortFailure(8122);
+			  break;
+		  case "&~print_local_logs":
+			  System.out.print("---PRINT LOCAL CHAT LOG---\n");
+			  printLocalChatLogs();
+		    break;
+		  default:
+		    System.out.println("Invalid command use");
+		}
 
+	}
 }
-    
+
 class ReadThread implements Runnable {
 	
     private MulticastSocket socket;

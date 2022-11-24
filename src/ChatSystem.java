@@ -14,7 +14,7 @@ public class ChatSystem
     private static String uniqueID = UUID.randomUUID().toString();
 	private static String[] autoAdj = {"Horrible", "Sweet", "Bland", "Crazy", "Memey", "Respectful", "Cautious", "Lumpy", "Stinky", "Sparkly"};
 	private static String[] autoNoun = {"Banana", "Plant", "Dog", "Box", "Bear", "Eye", "Cat", "Lawyer", "Sloth", "Doctor"};
-	private static int port, chatId = 0;
+	private static int port;
 	private static MulticastSocket socket;
 	private static ArrayList<String> chatLog = new ArrayList<String>();
 	
@@ -48,10 +48,9 @@ public class ChatSystem
                 //this on localhost only (For a subnet set it as 1)
                   
                 socket.joinGroup(group);
-                Thread t = new Thread(new
-                ReadThread(socket,group,port));
-              
-                // Spawn a thread for reading messages
+         
+                // Create a thread for reading messages
+                Thread t = new Thread(new ReadThread(socket,group,port));
                 t.start(); 
                   
                 // sent to the current group
@@ -65,12 +64,10 @@ public class ChatSystem
             {
                 System.out.println("Error creating socket");
                 se.printStackTrace();
-            }
-            catch(IOException ie)
-            {
-                System.out.println("Error reading/writing from/to socket");
-                ie.printStackTrace();
-            }
+            } catch (IOException ioe) {
+            	System.out.println("Error writing to socket");
+				ioe.printStackTrace();
+			}
     }
     
     public static void setNickName(String[] adjectives, String[] nouns, String UID) {
@@ -126,11 +123,10 @@ public class ChatSystem
 		LocalDateTime date = LocalDateTime.now();
 	    DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 	    String formattedDate = date.format(dateFormat);
-	    //System.out.println("After formatting: " + formattedDate);
 	    
 	    //Increment chatId
-	    ChatSystem.chatId = ChatSystem.chatId++;
-        String logContent = formattedDate + chatItem;
+	    String chatId = UUID.randomUUID().toString();
+        String logContent = chatId + formattedDate + chatItem;
         ChatSystem.chatLog.add(logContent);
 	}
 	
@@ -139,11 +135,27 @@ public class ChatSystem
 		
 	}
 	
-	public static void sendChatLog() {
+	public static void sendChatLog(Scanner sc, MulticastSocket socket, InetAddress group, int port) {
 		//Update new nodes with any previous chat logs
-		
-		
-	}
+		while(true)
+        {
+			StringBuilder builder = new StringBuilder("(");
+			for (String value : chatLog) builder.append(value).append(",");
+			if (chatLog.size() > 0) builder.deleteCharAt(builder.length() - 1);
+			builder.append(")");
+			String tmpString = builder.toString();
+			
+	        byte[] buffer = tmpString.getBytes();
+	        DatagramPacket datagram = new
+	        DatagramPacket(buffer,buffer.length,group,port);
+	        try {
+				socket.send(datagram);
+			} catch (IOException e) {
+				System.out.println("Error sending logs to socket");
+				e.printStackTrace();
+			}
+        }
+    }
 	
 	public static void printLocalChatLogs() {
 		System.out.println(chatLog);
@@ -158,7 +170,7 @@ public class ChatSystem
 		  case "&~print_local_logs":
 			  System.out.print("---PRINT LOCAL CHAT LOG---\n");
 			  printLocalChatLogs();
-		    break;
+			  break;
 		  default:
 		    System.out.println("Invalid command use");
 		}

@@ -141,7 +141,7 @@ public class Node {
         else if (cmd[0].equalsIgnoreCase("list")) {
             for(RemoteNode n: nodes)
             {
-                System.out.println(n.ip+":"+n.port);
+                System.out.println(n.nickName+" "+ n.ip+":"+n.port);
             }
         }
         else if (cmd[0].equalsIgnoreCase("broadcast")) {
@@ -152,6 +152,7 @@ public class Node {
                 System.out.println("Sending a PING to "+remoteip+":"+remoteport);
                 send(nickName,"PING "+port,remoteip,remoteport);
             }
+        
         } else {
         	if(cmd.length != 3) System.out.println("message IP PORT");
         	else {
@@ -168,19 +169,22 @@ public class Node {
         System.out.println(line+" from "+remoteip);
         String[] parts = line.split(" ");
         if (parts[1].equalsIgnoreCase("PING")) {
-        	
+        	String remotenickname = parts[0];	
             int remoteport = Integer.parseInt(parts[2]);
             RemoteNode rn = new RemoteNode();
             rn.ip = remoteip;
             rn.port = remoteport;
+            rn.nickName = remotenickname;
             nodes.add(rn);
             send(nickName,"PONG" +" "+ port,remoteip,remoteport);
         } else if (parts[1].equalsIgnoreCase("PONG")) {
         	//Might not work bc PONG might not send port
+        	String remotenickname = parts[0];	
         	int remoteport = Integer.parseInt(parts[2]);
         	RemoteNode rn = new RemoteNode();
             rn.ip = remoteip;
             rn.port = remoteport;
+            rn.nickName = remotenickname;
             nodes.add(rn);
         }
     }

@@ -154,19 +154,35 @@ public class Node {
             }
         
         } else {
+        	/*
         	if(cmd.length != 3) System.out.println("message IP PORT");
         	else {
         	String remoteip = cmd[1];
             int remoteport = Integer.parseInt(cmd[2]);
             System.out.println(cmd[0] + " to "+remoteip+":"+remoteport);
             send(nickName, cmd[0],remoteip,remoteport);
+            */
+        	if(nodes.size() == 0) {
+        		System.out.println("Uh oh, you don't have any friends yet :(");
+        	} else {
+        		for(RemoteNode n: nodes) {
+                    String remoteip = n.ip;
+                    int remoteport = n.port;
+                    //System.out.println("Sending a PING to "+remoteip+":"+remoteport);
+                    send(nickName,line,remoteip,remoteport);
+                }
+        	}
+        	
+        	
+        	
         	}
         }
-    }
+    
 
     public void receive(String line, String remoteip) // received data
     {
-        System.out.println(line+" from "+remoteip);
+        //System.out.println(line+" from "+remoteip);
+    	System.out.println(line);
         String[] parts = line.split(" ");
         if (parts[1].equalsIgnoreCase("PING")) {
         	String remotenickname = parts[0];	

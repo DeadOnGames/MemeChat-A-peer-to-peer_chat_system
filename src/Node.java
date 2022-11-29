@@ -88,7 +88,8 @@ public class Node {
         n.port = tport;
         n.go();
         
-        System.out.print("Welcome to MemeChat\n");
+        System.out.print("-------Welcome to MemeChat-------\n");
+        System.out.print("Username: " + n.nickName+"\n");
         System.out.println("Type a message + ENTER to send\n");
         System.out.println("Type 'exit' to leave chat\n");
         
@@ -144,13 +145,18 @@ public class Node {
                 System.out.println(n.nickName+" "+ n.ip+":"+n.port);
             }
         }
-        else if (cmd[0].equalsIgnoreCase("broadcast")) {
+        else if (cmd[0].equalsIgnoreCase("PINGALL")) {
             for(RemoteNode n: nodes)
             {
                 String remoteip = n.ip;
                 int remoteport = n.port;
-                System.out.println("Sending a PING to "+remoteip+":"+remoteport);
-                send(nickName,"PING "+port,remoteip,remoteport);
+                //System.out.println("Sending a PING to "+remoteip+":"+remoteport);
+                for(RemoteNode j: nodes)
+                {
+                	String nodeDeets = j.nickName + " " + j.ip + " " + j.port;
+                	send(nickName,"PINGALL "+nodeDeets,remoteip,remoteport);
+                }
+                
             }
         
         } else {
@@ -194,7 +200,6 @@ public class Node {
             nodes.add(rn);
             send(nickName,"PONG" +" "+ port,remoteip,remoteport);
         } else if (parts[1].equalsIgnoreCase("PONG")) {
-        	//Might not work bc PONG might not send port
         	String remotenickname = parts[0];	
         	int remoteport = Integer.parseInt(parts[2]);
         	RemoteNode rn = new RemoteNode();
@@ -202,6 +207,12 @@ public class Node {
             rn.port = remoteport;
             rn.nickName = remotenickname;
             nodes.add(rn);
+        } else if(parts[1].equalsIgnoreCase("PINGALL")) {
+        	RemoteNode rn = new RemoteNode();
+        	rn.nickName = parts[2];
+        	rn.ip = parts[3];
+        	rn.port = Integer.parseInt(parts[4]);
+        	nodes.add(rn);
         }
     }
 

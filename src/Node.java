@@ -167,9 +167,21 @@ public class Node {
     {
         System.out.println(line+" from "+remoteip);
         String[] parts = line.split(" ");
-        if (parts[0].equalsIgnoreCase("PING")) {
-            int remoteport = Integer.parseInt(parts[1]);
-            send(nickName,"PONG",remoteip,remoteport);
+        if (parts[1].equalsIgnoreCase("PING")) {
+        	
+            int remoteport = Integer.parseInt(parts[2]);
+            RemoteNode rn = new RemoteNode();
+            rn.ip = remoteip;
+            rn.port = remoteport;
+            nodes.add(rn);
+            send(nickName,"PONG" +" "+ port,remoteip,remoteport);
+        } else if (parts[1].equalsIgnoreCase("PONG")) {
+        	//Might not work bc PONG might not send port
+        	int remoteport = Integer.parseInt(parts[2]);
+        	RemoteNode rn = new RemoteNode();
+            rn.ip = remoteip;
+            rn.port = remoteport;
+            nodes.add(rn);
         }
     }
 

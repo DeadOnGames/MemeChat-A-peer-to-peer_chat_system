@@ -68,14 +68,19 @@ public class Node {
     public int port = 5000;
     public List<RemoteNode> nodes = new ArrayList<RemoteNode>();
 	public String nickName;
+	boolean isRobot = false;
 
     public static void setNickName(Node n) {
-        String uniqueID = UUID.randomUUID().toString();
+    	String uniqueID = UUID.randomUUID().toString();
+    	if(n.isRobot == true) {
+    		n.nickName = "MemeBot" + uniqueID;
+    	} else {
     	String[] autoAdj = {"Horrible", "Sweet", "Bland", "Crazy", "Memey", "Respectful", "Cautious", "Lumpy", "Stinky", "Sparkly"};
     	String[] autoNoun = {"Banana", "Plant", "Dog", "Box", "Bear", "Eye", "Cat", "Lawyer", "Sloth", "Doctor"};
 		int rnd1 = new Random().nextInt(autoAdj.length);
 		int rnd2 = new Random().nextInt(autoAdj.length);
 		n.nickName = autoAdj[rnd1] + autoNoun[rnd2] + "_" + uniqueID;
+    	}
     }
     
     public static void main(String[] args)
@@ -159,6 +164,8 @@ public class Node {
                 
             }
         
+        } else if (cmd[0].equalsIgnoreCase("robot")) {
+        	send(nickName,line,remoteip,remoteport);
         } else {
         	/*
         	if(cmd.length != 3) System.out.println("message IP PORT");

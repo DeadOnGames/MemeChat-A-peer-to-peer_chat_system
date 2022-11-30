@@ -74,7 +74,7 @@ public class Node {
             while(true)
             {
                 String line = sc.nextLine();
-                node.keyboard(line);
+                node.commandHandler(line);
             }
         }
     }
@@ -132,7 +132,7 @@ public class Node {
         }
     }
 
-    public void keyboard(String line) // keyboard line entered
+    public void commandHandler(String line) // keyboard line entered
     {
         System.out.println(nickName + ": " +line);
         String[] cmd = line.split(" ");
@@ -163,6 +163,15 @@ public class Node {
         }
         else if (cmd[0].equalsIgnoreCase("printlogs")) {
             printLocalChatLogs();
+        }
+        else if (cmd[0].equalsIgnoreCase("sendlogs")) {
+        	for(RemoteNode j: nodes) {
+        		String remoteip = j.ip;
+                int remoteport = j.port;
+        		for(ChatItem c : chatLog) {
+        		send(nickName,"sendlogs "+ c.chatId + " " + c.timeStamp +" "+ c.senderNickName +" "+ c.logContent,remoteip,remoteport);
+        		}
+        	}
         }
         else if (cmd[0].equalsIgnoreCase("PINGALL")) {
         	//Send everyone a ping which will share ip and port

@@ -169,7 +169,7 @@ public class Node {
         		String remoteip = j.ip;
                 int remoteport = j.port;
         		for(ChatItem c : chatLog) {
-        		send(nickName,"sendlogs "+ c.chatId + " " + c.timeStamp +" "+ c.senderNickName +" "+ c.logContent,remoteip,remoteport);
+        		send(nickName,"sendlogs "+ c.chatId + " " + c.timeStamp +" "+ c.logContent,remoteip,remoteport);
         		}
         	}
         }
@@ -249,6 +249,12 @@ public class Node {
         	addContact(parts[3], Integer.parseInt(parts[4]), parts[3]);
         } else if(parts[1].equalsIgnoreCase("UPDATEALL")) {
         	//addContact(parts[3], Integer.parseInt(parts[4]), parts[3]);
+        } else if(parts[1].equalsIgnoreCase("sendlogs")) {
+        	String content = "";
+        	for(int i=5; i <= parts.length -1; i++) {
+        		content += parts[i] + "";
+        	}
+        	updateChatLog(parts[0], parts[2], parts[3] + parts[4], content );
         }
     }
     
@@ -268,7 +274,28 @@ public class Node {
 	        if(!isDuplicate) {
 	        	nodes.add(rn);
 	        }
-
+    }
+    
+    public void updateChatLog(String nickName, String chatId, String timestamp, String content) {
+    	//Create a new chat item and add to the chatlog
+    	Boolean isDuplicate = false;
+    	ChatItem rc = new ChatItem();
+    	rc.chatId = chatId;
+    	rc.senderNickName = nickName;
+    	rc.timeStamp = timestamp;
+    	rc.logContent = content;
+        
+        for(ChatItem ch : chatLog) {
+        	if (ch.chatId.equalsIgnoreCase(rc.chatId)) {	//If chat item is already in local chat log
+        		isDuplicate = true;	
+        	}
+        }
+        if(!isDuplicate) {
+        	chatLog.add(rc);
+        }
+    	
+    	//Sort local chat log by timestamp
+        
     }
 
 }

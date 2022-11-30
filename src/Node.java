@@ -1,6 +1,8 @@
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -8,11 +10,25 @@ import java.util.Scanner;
 import java.util.UUID;
 
 public class Node {
+	public NetworkListener nlistener = null;
+    public KeyboardListener klistener = null;
+    public int port = 5000;
+    public List<RemoteNode> nodes = new ArrayList<RemoteNode>();
+    public List<ChatItem> chatLog = new ArrayList<ChatItem>();
+	public String nickName;
+	boolean isRobot = false;
 
     public class RemoteNode {
         public String ip;
         public int port;
         public String nickName;
+    }
+    
+    public class ChatItem {
+        public String timeStamp;
+        public String senderNickName;
+        public String chatId = UUID.randomUUID().toString();
+        public String logContent;
     }
 
     public class NetworkListener extends Thread {
@@ -63,12 +79,7 @@ public class Node {
         }
     }
     
-    public NetworkListener nlistener = null;
-    public KeyboardListener klistener = null;
-    public int port = 5000;
-    public List<RemoteNode> nodes = new ArrayList<RemoteNode>();
-	public String nickName;
-	boolean isRobot = false;
+    
 
     public static void setNickName(Node n) {
     	String uniqueID = UUID.randomUUID().toString();
@@ -150,7 +161,11 @@ public class Node {
                 System.out.println(n.nickName+" "+ n.ip+":"+n.port);
             }
         }
+        else if (cmd[0].equalsIgnoreCase("printlogs")) {
+            printLocalChatLogs();
+        }
         else if (cmd[0].equalsIgnoreCase("PINGALL")) {
+        	//Send everyone a ping which will share ip and port
             for(RemoteNode n: nodes)
             {
                 String remoteip = n.ip;
@@ -164,8 +179,15 @@ public class Node {
                 
             }
         
-        } else if (cmd[0].equalsIgnoreCase("robot")) {
-        	
+        } else if (cmd[0].equalsIgnoreCase("UPDATEALL")) {
+        	//Send everyone in nodes list local chat log
+        	for(RemoteNode n: nodes)
+            {
+                String remoteip = n.ip;
+                int remoteport = n.port;
+                
+                //send(nickName,"UPDATEALL "+ nodeDeets,remoteip,remoteport);
+            }
         } else {
         	if(nodes.size() == 0) {
         		System.out.println("Uh oh, you don't have any friends yet :(");
@@ -175,13 +197,38 @@ public class Node {
                     int remoteport = n.port;
                     //System.out.println("Sending a PING to "+remoteip+":"+remoteport);
                     send(nickName,line,remoteip,remoteport);
+                    logChat(line);
                 }
         	}}
         }
     
 
-    public void receive(String line, String remoteip) // received data
-    {
+    private void logChat(String chatItem) {
+    	LocalDateTime date = LocalDateTime.now();
+	    DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+	    String formattedDate = date.format(dateFormat);
+        
+        ChatItem c = new ChatItem();
+    	c.timeStamp = formattedDate;
+    	c.logContent = chatItem;
+    	c.senderNickName = nickName;
+    	chatLog.add(c);
+	}
+
+	public void printLocalChatLogs() {
+		System.out.println("-------CHAT LOG-------");
+		for(Node.ChatItem c : chatLog) {	
+			System.out.println(c.timeStamp +" "+ c.senderNickName +" "+ c.logContent);
+		}
+		System.out.println("----------------------");
+	}
+	
+	public void syncChatLog() {
+		//Get all other chat logs from other nodes, order by datetime
+		
+	}
+	
+	public void receive(String line, String remoteip){
     	System.out.println(line);
         String[] parts = line.split(" ");
         if (parts[1].equalsIgnoreCase("PING")) {
@@ -191,6 +238,8 @@ public class Node {
             addContact(remoteip, Integer.parseInt(parts[2]), parts[0]);
         } else if(parts[1].equalsIgnoreCase("PINGALL")) {
         	addContact(parts[3], Integer.parseInt(parts[4]), parts[3]);
+        } else if(parts[1].equalsIgnoreCase("UPDATEALL")) {
+        	//addContact(parts[3], Integer.parseInt(parts[4]), parts[3]);
         }
     }
     
@@ -203,15 +252,14 @@ public class Node {
 	        
 	        for(RemoteNode r : nodes) {
 	        	if (r.nickName.equalsIgnoreCase(rn.nickName)) {	//If node is already in nodes list
-	        		isDuplicate = true;
+	        		isDuplicate = true;	
 	        	}
 	        }
-	    //Check if the node is already in nodes list
+	        //Check if the node is already in nodes list
 	        if(!isDuplicate) {
 	        	nodes.add(rn);
 	        }
-	        
-    	
+
     }
 
 }

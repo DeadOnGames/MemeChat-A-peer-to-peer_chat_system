@@ -76,7 +76,7 @@ public class Node {
     		n.nickName = "MemeBot" + uniqueID;
     	} else {
     	String[] autoAdj = {"Horrible", "Sweet", "Bland", "Crazy", "Memey", "Respectful", "Cautious", "Lumpy", "Stinky", "Sparkly"};
-    	String[] autoNoun = {"Banana", "Plant", "Dog", "Box", "Bear", "Eye", "Cat", "Lawyer", "Sloth", "Doctor"};
+    	String[] autoNoun = {"Banana", "Plant", "Dog", "Face", "Bear", "Eye", "Cat", "Lawyer", "Sloth", "Doctor"};
 		int rnd1 = new Random().nextInt(autoAdj.length);
 		int rnd2 = new Random().nextInt(autoAdj.length);
 		n.nickName = autoAdj[rnd1] + autoNoun[rnd2] + "_" + uniqueID;
@@ -165,16 +165,8 @@ public class Node {
             }
         
         } else if (cmd[0].equalsIgnoreCase("robot")) {
-        	send(nickName,line,remoteip,remoteport);
+        	
         } else {
-        	/*
-        	if(cmd.length != 3) System.out.println("message IP PORT");
-        	else {
-        	String remoteip = cmd[1];
-            int remoteport = Integer.parseInt(cmd[2]);
-            System.out.println(cmd[0] + " to "+remoteip+":"+remoteport);
-            send(nickName, cmd[0],remoteip,remoteport);
-            */
         	if(nodes.size() == 0) {
         		System.out.println("Uh oh, you don't have any friends yet :(");
         	} else {
@@ -184,43 +176,42 @@ public class Node {
                     //System.out.println("Sending a PING to "+remoteip+":"+remoteport);
                     send(nickName,line,remoteip,remoteport);
                 }
-        	}
-        	
-        	
-        	
-        	}
+        	}}
         }
     
 
     public void receive(String line, String remoteip) // received data
     {
-        //System.out.println(line+" from "+remoteip);
     	System.out.println(line);
         String[] parts = line.split(" ");
         if (parts[1].equalsIgnoreCase("PING")) {
-        	String remotenickname = parts[0];	
-            int remoteport = Integer.parseInt(parts[2]);
-            RemoteNode rn = new RemoteNode();
-            rn.ip = remoteip;
-            rn.port = remoteport;
-            rn.nickName = remotenickname;
-            nodes.add(rn);
-            send(nickName,"PONG" +" "+ port,remoteip,remoteport);
+            addContact(remoteip, Integer.parseInt(parts[2]), parts[0]);
+            send(nickName,"PONG" +" "+ port,remoteip,Integer.parseInt(parts[2]));
         } else if (parts[1].equalsIgnoreCase("PONG")) {
-        	String remotenickname = parts[0];	
-        	int remoteport = Integer.parseInt(parts[2]);
-        	RemoteNode rn = new RemoteNode();
-            rn.ip = remoteip;
-            rn.port = remoteport;
-            rn.nickName = remotenickname;
-            nodes.add(rn);
+            addContact(remoteip, Integer.parseInt(parts[2]), parts[0]);
         } else if(parts[1].equalsIgnoreCase("PINGALL")) {
-        	RemoteNode rn = new RemoteNode();
-        	rn.nickName = parts[2];
-        	rn.ip = parts[3];
-        	rn.port = Integer.parseInt(parts[4]);
-        	nodes.add(rn);
+        	addContact(parts[3], Integer.parseInt(parts[4]), parts[3]);
         }
+    }
+    
+    public void addContact(String remoteip, int remoteport, String remotenickname) {
+    		Boolean isDuplicate = false;
+	    	RemoteNode rn = new RemoteNode();
+	    	rn.ip = remoteip;
+	        rn.port = remoteport;
+	        rn.nickName = remotenickname;
+	        
+	        for(RemoteNode r : nodes) {
+	        	if (r.nickName.equalsIgnoreCase(rn.nickName)) {	//If node is already in nodes list
+	        		isDuplicate = true;
+	        	}
+	        }
+	    //Check if the node is already in nodes list
+	        if(!isDuplicate) {
+	        	nodes.add(rn);
+	        }
+	        
+    	
     }
 
 }

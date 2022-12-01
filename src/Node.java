@@ -106,8 +106,9 @@ public class Node {
         
         System.out.print("-------Welcome to MemeChat-------\n");
         System.out.print("Username: " + n.nickName+"\n");
-        System.out.println("Type a message + ENTER to send\n");
-        System.out.println("Type 'exit' to leave chat\n");
+        System.out.println("Type a message + ENTER to send");
+        System.out.println("Type 'exit' to leave chat");
+        //System.out.println("Type 'help' to see command list");
         
     }
 
@@ -126,6 +127,25 @@ public class Node {
             InetAddress inet = InetAddress.getByName(ip);
             DatagramSocket ds = new DatagramSocket();
             DatagramPacket packet = new DatagramPacket(bytes, bytes.length, inet, remoteport);
+            ds.send(packet);
+        } catch(Exception e) {
+        	System.out.println("Error sending packet");
+            e.printStackTrace();
+        }
+    }
+    
+    public void sendMalformedData(String nickName, String msg, String ip, int remoteport) {
+        try {
+        	String conCat = nickName +": "+ msg;
+            byte[] bytes = conCat.getBytes();
+            //Just mess up some of the bytes
+            for(int i = 5; i <= bytes.length-1; i++) {
+            	bytes[i] += 27;
+            }
+            InetAddress inet = InetAddress.getByName(ip);
+            DatagramSocket ds = new DatagramSocket();
+            DatagramPacket packet = new DatagramPacket(bytes, bytes.length, inet, remoteport);
+            System.out.println("Sending : " + bytes.toString());
             ds.send(packet);
         } catch(Exception e) {
             e.printStackTrace();
@@ -197,7 +217,20 @@ public class Node {
                 
                 //send(nickName,"UPDATEALL "+ nodeDeets,remoteip,remoteport);
             }
-        } else {
+        } else if(cmd[0].equalsIgnoreCase("simLostPacket")) {
+        	
+        } else if(cmd[0].equalsIgnoreCase("simMalformedData")) {
+        	//Send some incorrect data over the network
+        	for(RemoteNode j: nodes)
+            {
+        		String remoteip = j.ip;
+                int remoteport = j.port;
+                sendMalformedData(nickName,"This is a test for malformed data - message success!",remoteip,remoteport);
+            }
+        } else if(cmd[0].equalsIgnoreCase("simDisconnectNode")) {
+        	
+        }
+        else {
         	if(nodes.size() == 0) {
         		System.out.println("Uh oh, you don't have any friends yet :(");
         	} else {
@@ -238,8 +271,12 @@ public class Node {
 	}
 	
 	public void receive(String line, String remoteip){
-    	System.out.println(line);
+		//if(line.) {}
+    	
         String[] parts = line.split(" ");
+        //Malformed data check
+        if(parts.length >= 2) {		//Parts will always be at least 2: username + content 
+        	System.out.println(line);
         if (parts[1].equalsIgnoreCase("PING")) {
             addContact(remoteip, Integer.parseInt(parts[2]), parts[0]);
             send(nickName,"PONG" +" "+ port,remoteip,Integer.parseInt(parts[2]));
@@ -254,8 +291,8 @@ public class Node {
         	for(int i=5; i <= parts.length -1; i++) {
         		content += parts[i] + "";
         	}
-        	updateChatLog(parts[0], parts[2], parts[3] + parts[4], content );
-        }
+        	updateChatLog(parts[0], parts[2], parts[3] +" "+ parts[4], content );
+        }}
     }
     
     public void addContact(String remoteip, int remoteport, String remotenickname) {

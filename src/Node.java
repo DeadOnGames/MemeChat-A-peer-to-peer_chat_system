@@ -84,7 +84,7 @@ public class Node {
     public static void setNickName(Node n) {
     	String uniqueID = UUID.randomUUID().toString();
     	if(n.isRobot == true) {
-    		n.nickName = "MemeBot" + uniqueID;
+    		n.nickName = "MemeBot" + "_" + uniqueID;
     	} else {
     	String[] autoAdj = {"Horrible", "Sweet", "Bland", "Crazy", "Memey", "Respectful", "Cautious", "Lumpy", "Stinky", "Sparkly"};
     	String[] autoNoun = {"Banana", "Plant", "Dog", "Face", "Bear", "Eye", "Cat", "Lawyer", "Sloth", "Doctor"};
@@ -229,6 +229,10 @@ public class Node {
             }
         } else if(cmd[0].equalsIgnoreCase("simDisconnectNode")) {
         	
+        } else if(cmd[0].equalsIgnoreCase("chatbot")) {
+        	isRobot = true;
+        	setNickName(this);
+        	chatBotSend();
         }
         else {
         	if(nodes.size() == 0) {
@@ -270,13 +274,14 @@ public class Node {
 		
 	}
 	
-	public void receive(String line, String remoteip){
-		//if(line.) {}
-    	
+	public void receive(String line, String remoteip){	
         String[] parts = line.split(" ");
         //Malformed data check
         if(parts.length >= 2) {		//Parts will always be at least 2: username + content 
         	System.out.println(line);
+        	if(isRobot) {
+        		chatBotSend(parts[1]);
+        	} 
         if (parts[1].equalsIgnoreCase("PING")) {
             addContact(remoteip, Integer.parseInt(parts[2]), parts[0]);
             send(nickName,"PONG" +" "+ port,remoteip,Integer.parseInt(parts[2]));
@@ -333,6 +338,28 @@ public class Node {
     	
     	//Sort local chat log by timestamp
         
+    }
+    
+    public void chatBotSend() {
+    	String line = "Hi I'm a chatbot! What is your name?";
+    	for(RemoteNode n: nodes) {
+            String remoteip = n.ip;
+            int remoteport = n.port;
+            send(nickName,line,remoteip,remoteport);
+            logChat(line);
+        }
+    	System.out.println(nickName + ": " + line);
+    }
+    
+    public void chatBotSend(String line) {
+    	String message = "Wow, " + line + " is a really cool name!";
+    	for(RemoteNode n: nodes) {
+            String remoteip = n.ip;
+            int remoteport = n.port;
+            send(nickName,message,remoteip,remoteport);
+            logChat(line);
+        }
+    	System.out.println(nickName + ": " + message);
     }
 
 }

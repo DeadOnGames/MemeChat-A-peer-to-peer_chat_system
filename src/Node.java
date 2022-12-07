@@ -118,9 +118,7 @@ public class Node{
         
         System.out.print("-------Welcome to MemeChat-------\n");
         System.out.print("Username: " + n.nickName+"\n");
-        System.out.println("Type a message + ENTER to send");
-        System.out.println("Type 'exit' to leave chat");
-        //System.out.println("Type 'help' to see command list");
+        System.out.println("Type a message + ENTER to send or type 'help' for commands list");
         
     }
 
@@ -170,6 +168,9 @@ public class Node{
         String[] cmd = line.split(" ");
         if (cmd[0].equalsIgnoreCase("exit"))
             System.exit(0);
+        else if(cmd[0].equals("help")) {
+        	printCommands();
+        }
         else if(cmd[0].equalsIgnoreCase("ping"))
         {
             if(cmd.length != 3) System.out.println("ping IP PORT");
@@ -181,13 +182,16 @@ public class Node{
             }
         }
         else if (cmd[0].equalsIgnoreCase("add")) {
-            RemoteNode rn = new RemoteNode();
-            rn.ip = cmd[1];
-            rn.port = Integer.parseInt(cmd[2]);
-            //setNickName(rn);
-            nodes.add(rn);
+        	if(cmd.length != 3) System.out.println("add IP PORT");
+            else {
+	            RemoteNode rn = new RemoteNode();
+	            rn.ip = cmd[1];
+	            rn.port = Integer.parseInt(cmd[2]);
+	            //setNickName(rn);
+	            nodes.add(rn);
+            }
         }
-        else if (cmd[0].equalsIgnoreCase("list")) {
+        else if (cmd[0].equalsIgnoreCase("listfriends")) {
             for(RemoteNode n: nodes)
             {
                 System.out.println(n.nickName+" "+ n.ip+":"+n.port);
@@ -261,7 +265,26 @@ public class Node{
         }
     
 
-    private void logChat(String chatItem) {
+    private void printCommands() {
+		// TODO Auto-generated method stub
+    	System.out.println("-------Commands List-------");
+    	System.out.println("help                open commands list");
+    	System.out.println("exit                logout");
+    	System.out.println("ping <ip> <port>    share ip and port with another node");
+    	System.out.println("pingall             share ip and port of all friends");
+    	System.out.println("add <ip> <port>     add ip and port to friends list");
+    	System.out.println("listfriends 	    print out friends list");
+    	System.out.println("printlogs     	    print out local logs");
+    	System.out.println("sendlogs     	    send local logs to all friends");
+    	System.out.println("simMalformedData    simulate a malformed data send");	
+    	System.out.println("chatbot             turn this node into a chatbot");
+    	
+    	System.out.println("--------------------------");
+    	
+		
+	}
+
+	private void logChat(String chatItem) {
     	LocalDateTime date = LocalDateTime.now();
 	    DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 	    String formattedDate = date.format(dateFormat);

@@ -207,6 +207,7 @@ public class Node{
             printLocalChatLogs();
         }
         else if (cmd[0].equalsIgnoreCase("sendlogs")) {
+        	//Send everyone in your friendslist your chatItems from local logs
         	for(RemoteNode j: nodes) {
         		String remoteip = j.ip;
                 int remoteport = j.port;
@@ -214,6 +215,10 @@ public class Node{
         		send(nickName,"sendlogs "+ c.chatId + " " + c.timeStamp +" "+ c.logContent,remoteip,remoteport);
         		}
         	}
+        } else if (cmd[0].equalsIgnoreCase("clearlogs")) {
+        	chatLog.clear();
+        } else if (cmd[0].equalsIgnoreCase("clearfriends")) {
+        	nodes.clear();
         }
         else if (cmd[0].equalsIgnoreCase("PINGALL")) {
         	//Send everyone a ping which will share ip and port
@@ -229,14 +234,12 @@ public class Node{
                 
             }
         
-        } else if (cmd[0].equalsIgnoreCase("UPDATEALL")) {
+        } else if (cmd[0].equalsIgnoreCase("updatelogs")) {
         	//Send everyone in nodes list local chat log
         	for(RemoteNode n: nodes)
             {
                 String remoteip = n.ip;
                 int remoteport = n.port;
-                
-                //send(nickName,"UPDATEALL "+ nodeDeets,remoteip,remoteport);
             }
         } else if(cmd[0].equalsIgnoreCase("simLostPacket")) {
         	
@@ -285,12 +288,12 @@ public class Node{
     	System.out.println("listfriends 	    print out friends list");
     	System.out.println("printlogs     	    print out local logs");
     	System.out.println("sendlogs     	    send local logs to all friends");
+    	System.out.println("clearfriends        clear friends list");
+    	System.out.println("clearlogs     	    clear local logs");
     	System.out.println("simMalformedData    simulate a malformed data send");	
-    	System.out.println("laughbot            turn this node into a laughbot to laugh at your jokes");
+    	System.out.println("laughbot            turn this node into a laughbot to laugh at everyone");
     	
     	System.out.println("--------------------------");
-    	
-		
 	}
 
 	private void logChat(String chatItem) {
@@ -334,7 +337,7 @@ public class Node{
             addContact(remoteip, Integer.parseInt(parts[2]), parts[0]);
         } else if(parts[1].equalsIgnoreCase("PINGALL")) {
         	addContact(remoteip, Integer.parseInt(parts[4]), parts[2]);
-        } else if(parts[1].equalsIgnoreCase("UPDATEALL")) {
+        } else if(parts[1].equalsIgnoreCase("updatelogs")) {
         	//addContact(parts[3], Integer.parseInt(parts[4]), parts[3]);
         } else if(parts[1].equalsIgnoreCase("sendlogs")) {
         	String content = "";
@@ -353,7 +356,8 @@ public class Node{
 	        rn.nickName = remotenickname;
 	        
 	        for(RemoteNode r : nodes) {
-	        	if (r.nickName.equalsIgnoreCase(rn.nickName)) {	//If node is already in nodes list
+	        	if (r.nickName.equalsIgnoreCase(rn.nickName) || r.nickName.equalsIgnoreCase(nickName)) {	
+	        		//If node is already in nodes list or is this node's nickname
 	        		isDuplicate = true;	
 	        	}
 	        }

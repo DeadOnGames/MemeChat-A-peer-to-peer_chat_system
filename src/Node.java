@@ -4,12 +4,13 @@ import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.UUID;
 
-public class Node {
+public class Node{
 	public NetworkListener nlistener = null;
     public KeyboardListener klistener = null;
     public int port = 5000;
@@ -24,11 +25,22 @@ public class Node {
         public String nickName;
     }
     
-    public class ChatItem {
+    public class ChatItem implements Comparable<ChatItem>{
         public String timeStamp;
         public String senderNickName;
         public String chatId = UUID.randomUUID().toString();
         public String logContent;
+        
+        
+		@Override
+		public int compareTo(ChatItem o) {
+			return getTimeStamp().compareTo(o.getTimeStamp());
+		}
+
+
+		public String getTimeStamp() {
+			return timeStamp;
+		}
     }
 
     public class NetworkListener extends Thread {
@@ -294,7 +306,7 @@ public class Node {
         } else if(parts[1].equalsIgnoreCase("sendlogs")) {
         	String content = "";
         	for(int i=5; i <= parts.length -1; i++) {
-        		content += parts[i] + "";
+        		content += parts[i] + " ";
         	}
         	updateChatLog(parts[0], parts[2], parts[3] +" "+ parts[4], content );
         }}
@@ -336,8 +348,8 @@ public class Node {
         	chatLog.add(rc);
         }
     	
-    	//Sort local chat log by timestamp
-        
+        //Sort chatItems by timestamps
+        Collections.sort(chatLog);
     }
     
     public void chatBotSend() {

@@ -98,8 +98,8 @@ public class Node{
     	if(n.isRobot == true) {
     		n.nickName = "LaughtBot" + "_" + uniqueID;
     	} else {
-    	String[] autoAdj = {"Horrible", "Sweet", "Bland", "Crazy", "Memey", "Respectful", "Cautious", "Lumpy", "Stinky", "Sparkly"};
-    	String[] autoNoun = {"Banana", "Plant", "Dog", "Face", "Bear", "Eye", "Cat", "Lawyer", "Sloth", "Doctor"};
+    	String[] autoAdj = {"Horrible", "Stray", "Crunchy", "Sweet", "Bland", "Crazy", "Memey", "Respectful", "Cautious", "Lumpy", "Stinky", "Sparkly"};
+    	String[] autoNoun = {"Banana", "Plant", "Doge", "Face", "Bear", "Eye", "Cat", "Lawyer", "Sloth", "Doctor"};
 		int rnd1 = new Random().nextInt(autoAdj.length);
 		int rnd2 = new Random().nextInt(autoAdj.length);
 		n.nickName = autoAdj[rnd1] + autoNoun[rnd2] + "_" + uniqueID;

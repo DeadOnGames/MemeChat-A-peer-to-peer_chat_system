@@ -192,10 +192,16 @@ public class Node{
             }
         }
         else if (cmd[0].equalsIgnoreCase("listfriends")) {
-            for(RemoteNode n: nodes)
-            {
-                System.out.println(n.nickName+" "+ n.ip+":"+n.port);
-            }
+        	System.out.println("-------Friends List-------");
+        	if(nodes.size() == 0) {
+        		System.out.println("Uh oh, you don't have any friends yet :(");
+        	} else {
+	            for(RemoteNode n: nodes)
+	            {
+	                System.out.println(n.nickName+" "+ n.ip+":"+n.port);
+	            }
+        	}
+            System.out.println("---------------------------");
         }
         else if (cmd[0].equalsIgnoreCase("printlogs")) {
             printLocalChatLogs();
@@ -215,7 +221,6 @@ public class Node{
             {
                 String remoteip = n.ip;
                 int remoteport = n.port;
-                //System.out.println("Sending a PING to "+remoteip+":"+remoteport);
                 for(RemoteNode j: nodes)
                 {
                 	String nodeDeets = j.nickName + " " + j.ip + " " + j.port;
@@ -305,7 +310,8 @@ public class Node{
 	}
 	
 	public void syncChatLog() {
-		//Get all other chat logs from other nodes, order by datetime
+		//Sort chatItems in ChatLog by timestamps
+        Collections.sort(chatLog);
 		
 	}
 	
@@ -323,7 +329,7 @@ public class Node{
         } else if (parts[1].equalsIgnoreCase("PONG")) {
             addContact(remoteip, Integer.parseInt(parts[2]), parts[0]);
         } else if(parts[1].equalsIgnoreCase("PINGALL")) {
-        	addContact(parts[3], Integer.parseInt(parts[4]), parts[3]);
+        	addContact(remoteip, Integer.parseInt(parts[4]), parts[2]);
         } else if(parts[1].equalsIgnoreCase("UPDATEALL")) {
         	//addContact(parts[3], Integer.parseInt(parts[4]), parts[3]);
         } else if(parts[1].equalsIgnoreCase("sendlogs")) {
@@ -371,8 +377,7 @@ public class Node{
         	chatLog.add(rc);
         }
     	
-        //Sort chatItems by timestamps
-        Collections.sort(chatLog);
+        syncChatLog();
     }
     
     public void chatBotSend() {

@@ -96,7 +96,7 @@ public class Node{
     public static void setNickName(Node n) {
     	String uniqueID = UUID.randomUUID().toString();
     	if(n.isRobot == true) {
-    		n.nickName = "MemeBot" + "_" + uniqueID;
+    		n.nickName = "LaughtBot" + "_" + uniqueID;
     	} else {
     	String[] autoAdj = {"Horrible", "Sweet", "Bland", "Crazy", "Memey", "Respectful", "Cautious", "Lumpy", "Stinky", "Sparkly"};
     	String[] autoNoun = {"Banana", "Plant", "Dog", "Face", "Bear", "Eye", "Cat", "Lawyer", "Sloth", "Doctor"};
@@ -250,10 +250,14 @@ public class Node{
             }
         } else if(cmd[0].equalsIgnoreCase("simDisconnectNode")) {
         	
-        } else if(cmd[0].equalsIgnoreCase("chatbot")) {
-        	isRobot = true;
-        	setNickName(this);
-        	chatBotSend();
+        } else if(cmd[0].equalsIgnoreCase("laughbot")) {
+        	if(nodes.size() == 0) {
+        		System.out.print("Uh oh, looks like this chatbot needs some friends first!");
+        	} else {
+	        	isRobot = true;
+	        	setNickName(this);
+	        	chatBotSend();
+        	}
         }
         else {
         	if(nodes.size() == 0) {
@@ -282,7 +286,7 @@ public class Node{
     	System.out.println("printlogs     	    print out local logs");
     	System.out.println("sendlogs     	    send local logs to all friends");
     	System.out.println("simMalformedData    simulate a malformed data send");	
-    	System.out.println("chatbot             turn this node into a chatbot");
+    	System.out.println("laughbot            turn this node into a laughbot to laugh at your jokes");
     	
     	System.out.println("--------------------------");
     	
@@ -321,7 +325,7 @@ public class Node{
         if(parts.length >= 2) {		//Parts will always be at least 2: username + content 
         	System.out.println(line);
         	if(isRobot) {
-        		chatBotSend(parts[1]);
+        		chatBotLaugh();
         	} 
         if (parts[1].equalsIgnoreCase("PING")) {
             addContact(remoteip, Integer.parseInt(parts[2]), parts[0]);
@@ -381,7 +385,7 @@ public class Node{
     }
     
     public void chatBotSend() {
-    	String line = "Hi I'm a chatbot! What is your name?";
+    	String line = "Hi I'm a laughbot! How is everyone?";
     	for(RemoteNode n: nodes) {
             String remoteip = n.ip;
             int remoteport = n.port;
@@ -391,13 +395,15 @@ public class Node{
     	System.out.println(nickName + ": " + line);
     }
     
-    public void chatBotSend(String line) {
-    	String message = "Wow, " + line + " is a really cool name!";
+    public void chatBotLaugh() {
+    	String[] laughs = {"Haha", "XD", "Hahaha", "Heehee", "Good meme", "lol", "MHAHAHAHAHAHA", "HAHAHA", ":D"};
+		int rnd1 = new Random().nextInt(laughs.length);
+		String message = laughs[rnd1];
     	for(RemoteNode n: nodes) {
             String remoteip = n.ip;
             int remoteport = n.port;
             send(nickName,message,remoteip,remoteport);
-            logChat(line);
+            logChat(message);
         }
     	System.out.println(nickName + ": " + message);
     }

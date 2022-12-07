@@ -101,7 +101,7 @@ public class Node{
     	String[] autoAdj = {"Horrible", "Stray", "Crunchy", "Sweet", "Bland", "Crazy", "Memey", "Respectful", "Cautious", "Lumpy", "Stinky", "Sparkly"};
     	String[] autoNoun = {"Banana", "Plant", "Doge", "Face", "Bear", "Eye", "Cat", "Lawyer", "Sloth", "Doctor"};
 		int rnd1 = new Random().nextInt(autoAdj.length);
-		int rnd2 = new Random().nextInt(autoAdj.length);
+		int rnd2 = new Random().nextInt(autoNoun.length);
 		n.nickName = autoAdj[rnd1] + autoNoun[rnd2] + "_" + uniqueID;
     	}
     }
@@ -353,13 +353,23 @@ public class Node{
 	    	RemoteNode rn = new RemoteNode();
 	    	rn.ip = remoteip;
 	        rn.port = remoteport;
-	        rn.nickName = remotenickname;
 	        
-	        for(RemoteNode r : nodes) {
-	        	if (r.nickName.equalsIgnoreCase(rn.nickName) || r.nickName.equalsIgnoreCase(nickName)) {	
-	        		//If node is already in nodes list or is this node's nickname
-	        		isDuplicate = true;	
-	        	}
+	        if(remotenickname.charAt(remotenickname.length() - 1) == ':') {
+	        	//Remove ":"
+	        	remotenickname = remotenickname.substring(0, remotenickname.length() - 1);  
+	        }
+	        	rn.nickName = remotenickname;
+	        
+	        //Check if it is this node's nickname
+	        if(rn.nickName.equalsIgnoreCase(nickName)) {
+	        	isDuplicate = true;
+	        } else {
+		        for(RemoteNode r : nodes) {
+		        	if (r.nickName.equalsIgnoreCase(rn.nickName) ) {	
+		        		//If node is already in nodes list 
+		        		isDuplicate = true;	
+		        	}
+		        }
 	        }
 	        //Check if the node is already in nodes list
 	        if(!isDuplicate) {

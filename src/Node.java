@@ -235,12 +235,20 @@ public class Node{
             }
         
         } else if (cmd[0].equalsIgnoreCase("updatelogs")) {
-        	//Send everyone in nodes list local chat log
-        	for(RemoteNode n: nodes)
-            {
-                String remoteip = n.ip;
-                int remoteport = n.port;
-            }
+        	
+        	for(RemoteNode j: nodes) {
+        		String remoteip = j.ip;
+                int remoteport = j.port;
+        		for(ChatItem c : chatLog) {
+        			//Send everyone in nodes list local chat log
+        			send(nickName,"sendlogs "+ c.chatId + " " + c.timeStamp +" "+ c.logContent,remoteip,remoteport);
+        		}
+        		
+        		//Send a request for them to send you their local logs
+            	send(nickName,"updatelogs ", remoteip, remoteport);
+        	}
+        	
+        	
         } else if(cmd[0].equalsIgnoreCase("simLostPacket")) {
         	
         } else if(cmd[0].equalsIgnoreCase("simMalformedData")) {
@@ -266,13 +274,14 @@ public class Node{
         	if(nodes.size() == 0) {
         		System.out.println("Uh oh, you don't have any friends yet :(");
         	} else {
+        		//Broadcast message across the network
         		for(RemoteNode n: nodes) {
                     String remoteip = n.ip;
                     int remoteport = n.port;
-                    //System.out.println("Sending a PING to "+remoteip+":"+remoteport);
                     send(nickName,line,remoteip,remoteport);
-                    logChat(line);
+                    
                 }
+        		logChat(line);
         	}}
         }
     
@@ -288,6 +297,7 @@ public class Node{
     	System.out.println("listfriends 	    print out friends list");
     	System.out.println("printlogs     	    print out local logs");
     	System.out.println("sendlogs     	    send local logs to all friends");
+    	System.out.println("updatelogs     	    send local logs to all friends");
     	System.out.println("clearfriends        clear friends list");
     	System.out.println("clearlogs     	    clear local logs");
     	System.out.println("simMalformedData    simulate a malformed data send");	
@@ -297,6 +307,7 @@ public class Node{
 	}
 
 	private void logChat(String chatItem) {
+		
     	LocalDateTime date = LocalDateTime.now();
 	    DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 	    String formattedDate = date.format(dateFormat);
@@ -306,6 +317,7 @@ public class Node{
     	c.logContent = chatItem;
     	c.senderNickName = nickName;
     	chatLog.add(c);
+		
 	}
 
 	public void printLocalChatLogs() {
@@ -338,7 +350,19 @@ public class Node{
         } else if(parts[1].equalsIgnoreCase("PINGALL")) {
         	addContact(remoteip, Integer.parseInt(parts[4]), parts[2]);
         } else if(parts[1].equalsIgnoreCase("updatelogs")) {
-        	//addContact(parts[3], Integer.parseInt(parts[4]), parts[3]);
+	       int remoteport = 0;
+        	//Get remoteport from nodes list
+        	for(RemoteNode n: nodes) {
+        		if(parts[0].equalsIgnoreCase(n.nickName)){
+        			remoteport = n.port;
+        		}
+        	}
+        	
+        	//Send back local log to node
+			for(ChatItem c : chatLog) {
+				send(nickName,"sendlogs "+ c.chatId + " " + c.timeStamp +" "+ c.logContent,remoteip,remoteport);
+			}
+        	
         } else if(parts[1].equalsIgnoreCase("sendlogs")) {
         	String content = "";
         	for(int i=5; i <= parts.length -1; i++) {

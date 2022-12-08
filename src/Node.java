@@ -352,16 +352,22 @@ public class Node{
         } else if(parts[1].equalsIgnoreCase("updatelogs")) {
 	       int remoteport = 0;
         	//Get remoteport from nodes list
+	       String searchNickName = removeColon(parts[0]);
         	for(RemoteNode n: nodes) {
-        		if(parts[0].equalsIgnoreCase(n.nickName)){
+        		if(searchNickName.equalsIgnoreCase(n.nickName)){
         			remoteport = n.port;
         		}
         	}
         	
-        	//Send back local log to node
-			for(ChatItem c : chatLog) {
-				send(nickName,"sendlogs "+ c.chatId + " " + c.timeStamp +" "+ c.logContent,remoteip,remoteport);
-			}
+        	try {
+	        	//Send back local log to node
+				for(ChatItem c : chatLog) {
+					send(nickName,"sendlogs "+ c.chatId + " " + c.timeStamp +" "+ c.logContent,remoteip,remoteport);
+				}
+        	} catch(Exception e) { 
+        		System.out.println("Error finding friend port number.");
+        		e.printStackTrace(); 
+        	}
         	
         } else if(parts[1].equalsIgnoreCase("sendlogs")) {
         	String content = "";
@@ -378,11 +384,8 @@ public class Node{
 	    	rn.ip = remoteip;
 	        rn.port = remoteport;
 	        
-	        if(remotenickname.charAt(remotenickname.length() - 1) == ':') {
-	        	//Remove ":"
-	        	remotenickname = remotenickname.substring(0, remotenickname.length() - 1);  
-	        }
-	        	rn.nickName = remotenickname;
+	        
+	        rn.nickName = removeColon(remotenickname);
 	        
 	        //Check if it is this node's nickname
 	        if(rn.nickName.equalsIgnoreCase(nickName)) {
@@ -399,6 +402,15 @@ public class Node{
 	        if(!isDuplicate) {
 	        	nodes.add(rn);
 	        }
+    }
+    
+    public String removeColon(String remotenickname) {
+    //A method to remove the colon appended to the end of nickName
+    	if(remotenickname.charAt(remotenickname.length() - 1) == ':') {
+        	//Remove ":"
+        	remotenickname = remotenickname.substring(0, remotenickname.length() - 1);  
+        }
+    	return remotenickname;
     }
     
     public void updateChatLog(String nickName, String chatId, String timestamp, String content) {

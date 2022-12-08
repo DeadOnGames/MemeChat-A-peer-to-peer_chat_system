@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class Node{
 	public NetworkListener nlistener = null;
-    public KeyboardListener klistener = null;
+    public CommandListener klistener = null;
     public int port = 5000;
     public List<RemoteNode> nodes = new ArrayList<RemoteNode>();
     public List<ChatItem> chatLog = new ArrayList<ChatItem>();
@@ -78,9 +78,9 @@ public class Node{
         }
     }
 
-    public class KeyboardListener extends Thread {
+    public class CommandListener extends Thread {
         Node node = null;
-        public KeyboardListener(Node n) { node = n; }
+        public CommandListener(Node n) { node = n; }
         public void run() {
             Scanner sc = new Scanner(System.in);
             while(true)
@@ -91,12 +91,10 @@ public class Node{
         }
     }
     
-    
-
     public static void setNickName(Node n) {
     	String uniqueID = UUID.randomUUID().toString();
     	if(n.isRobot == true) {
-    		n.nickName = "LaughtBot" + "_" + uniqueID;
+    		n.nickName = "LaughBot" + "_" + uniqueID;
     	} else {
     	String[] autoAdj = {"Horrible", "Stray", "Crunchy", "Sweet", "Bland", "Crazy", "Memey", "Respectful", "Cautious", "Lumpy", "Stinky", "Sparkly"};
     	String[] autoNoun = {"Banana", "Plant", "Doge", "Face", "Bear", "Eye", "Cat", "Lawyer", "Sloth", "Doctor"};
@@ -124,7 +122,7 @@ public class Node{
 
     public void go()
     {
-        klistener = new KeyboardListener(this);
+        klistener = new CommandListener(this);
         klistener.start();
         nlistener = new NetworkListener(this);
         nlistener.start();
@@ -447,7 +445,7 @@ public class Node{
     
     public void chatBotLaugh() {
     	String[] laughs = {"Haha", "XD", "Hahaha", "Heehee", "Good meme", "lol", "MHAHAHAHAHAHA", "HAHAHA", ":D"};
-		int rnd1 = new Random().nextInt(laughs.length);
+		int rnd1 = new Random().nextInt(laughs.length -1);
 		String message = laughs[rnd1];
     	for(RemoteNode n: nodes) {
             String remoteip = n.ip;

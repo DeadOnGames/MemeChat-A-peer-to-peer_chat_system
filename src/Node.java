@@ -537,7 +537,9 @@ public class Node{
     public void memePrinter() {
     	for(String d : sadDoge) {
     		System.out.println(d);
+    		logChat(d);
     	}
+    	
     }
 
 }

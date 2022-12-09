@@ -65,6 +65,7 @@ public class Node{
             } catch(Exception e) { e.printStackTrace(); }
         }
 
+        /*
         public String ByteToString(byte[] a)
         {
         if (a == null)
@@ -77,9 +78,24 @@ public class Node{
             i++;
         }
         return ret.toString();
-        }
+        }*/
     }
-
+    
+    public String ByteToString(byte[] a)
+    {
+	    if (a == null) {
+	        return null;
+	    }
+	    StringBuilder ret = new StringBuilder();
+	    int i = 0;
+	    while (a[i] != 0)
+	    {
+	        ret.append((char) a[i]);
+	        i++;
+	    }
+	    return ret.toString();
+    }
+    
     public class CommandListener extends Thread {
         Node node = null;
         public CommandListener(Node n) { node = n; }
@@ -148,14 +164,19 @@ public class Node{
         try {
         	String conCat = nickName +": "+ msg;
             byte[] bytes = conCat.getBytes();
+            
             //Just mess up some of the bytes
             for(int i = 5; i <= bytes.length-1; i++) {
             	bytes[i] += 27;
             }
+            int len = bytes.length -1 ;
+            bytes[len] = 0;
+            
             InetAddress inet = InetAddress.getByName(ip);
             DatagramSocket ds = new DatagramSocket();
             DatagramPacket packet = new DatagramPacket(bytes, bytes.length, inet, remoteport);
-            System.out.println("Sending : " + bytes.toString());
+            System.out.println("Original message : " + conCat);
+            System.out.println("Malformed message : " + ByteToString(bytes));
             ds.send(packet);
         } catch(Exception e) {
             e.printStackTrace();
@@ -247,10 +268,6 @@ public class Node{
         		//Send a request for them to send you their local logs
             	send(nickName,"updatelogs ", remoteip, remoteport);
         	}
-        	
-        	
-        } else if(cmd[0].equalsIgnoreCase("simLostPacket")) {
-        	
         } else if(cmd[0].equalsIgnoreCase("simMalformedData")) {
         	//Send some incorrect data over the network
         	for(RemoteNode j: nodes)
@@ -259,8 +276,6 @@ public class Node{
                 int remoteport = j.port;
                 sendMalformedData(nickName,"This is a test for malformed data - message success!",remoteip,remoteport);
             }
-        } else if(cmd[0].equalsIgnoreCase("simDisconnectNode")) {
-        	
         } else if(cmd[0].equalsIgnoreCase("laughbot")) {
         	if(nodes.size() == 0) {
         		System.out.print("Uh oh, looks like this chatbot needs some friends first!");
@@ -386,7 +401,9 @@ public class Node{
         		content += parts[i] + " ";
         	}
         	updateChatLog(parts[0], parts[2], parts[3] +" "+ parts[4], content );
-        }}
+        }} else {
+        	System.out.println("Message received was malformed");
+        }
     }
     
     public void addContact(String remoteip, int remoteport, String remotenickname) {

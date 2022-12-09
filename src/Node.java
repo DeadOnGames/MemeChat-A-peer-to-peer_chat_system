@@ -1,3 +1,4 @@
+import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -16,6 +17,7 @@ public class Node{
     public int port = 5000;
     public List<RemoteNode> nodes = new ArrayList<RemoteNode>();
     public List<ChatItem> chatLog = new ArrayList<ChatItem>();
+    List<String> sadDoge = new ArrayList<String>();
 	public String nickName;
 	boolean isRobot = false;
 
@@ -267,6 +269,16 @@ public class Node{
 	        	setNickName(this);
 	        	chatBotSend();
         	}
+        } else if(cmd[0].equalsIgnoreCase("meme")) {
+        	memeBuilder();
+        	memePrinter();
+        	//Send a sad doge meme to everyone on the network
+        	for(RemoteNode n: nodes) {
+                String remoteip = n.ip;
+                int remoteport = n.port;
+                memeSender(remoteip, remoteport);         
+            }
+        	
         }
         else {
         	if(nodes.size() == 0) {
@@ -300,6 +312,7 @@ public class Node{
     	System.out.println("clearlogs     	    clear local logs");
     	System.out.println("simMalformedData    simulate a malformed data send");	
     	System.out.println("laughbot            turn this node into a laughbot to laugh at everyone");
+    	System.out.println("meme                send a ascii art meme");
     	
     	System.out.println("--------------------------");
 	}
@@ -454,6 +467,60 @@ public class Node{
             logChat(message);
         }
     	System.out.println(nickName + ": " + message);
+    }
+    
+    public void memeBuilder() {
+    	sadDoge.clear();
+    	sadDoge.add("                 .(##((**/////*,..                                      ");
+    	sadDoge.add("                (((############%%%##((####*                                ");
+    	sadDoge.add("             .((((###############%####%%##%%#/                             ");
+    	sadDoge.add("            (//((#####(((##############%#(#%%%#(                           ");
+    	sadDoge.add("           *#((((((((((((((##########%###(%&%%%##,                         ");
+    	sadDoge.add("          .#%(((((#%&&&&&&%(((########%%%%%%%%####/                        ");
+    	sadDoge.add("          ,#%%%%%%%#(//((//****/(((################(                       ");
+    	sadDoge.add("        (%%%%####(((//**********//(((###############%#                     ");
+    	sadDoge.add("      (&&&&&%#((((#(((((//******////(((#################(.                 ");
+    	sadDoge.add("     *&&&&&&##(((((#%&%#(//*****///((((###################*                ");
+    	sadDoge.add("        (%%%%%%##%&%##((//*****///((((#######%%###########(.               ");
+    	sadDoge.add("              /(((((/////*****//(((########%%%###############/             ");
+    	sadDoge.add("              ,///////////////(((#########%%###############%%%%#*.         ");
+    	sadDoge.add("              */////////////((((#########################%%%%%%%%##/       ");
+    	sadDoge.add("              */////////*////(((((###((((((((((((((####%%%%%#%%%%###*      ");
+    	sadDoge.add("              ,///*////*****///((((((//////((((((###%%%%%##%%%%%#####,     ");
+    	sadDoge.add("              */************///////////////(((((#########%%%%%%######%,    ");
+    	sadDoge.add("              *///////*********///////(((((((((((((#####%%%%%#######%%%,   ");
+    	sadDoge.add("             .///////*/////****/////////////////(((####%%%%%######%%%%%%,  ");
+    	sadDoge.add("             ./////////**///////////////////////((#####%%%%%####%%%%%%%%(  ");
+    	sadDoge.add("              /////////*///////*//////////////(#######%%%%%#####%%%%%%%.  ");
+    	sadDoge.add("              *(((((((///////////////////////(#######%%%%%###%%%%%%%%/     ");
+    	sadDoge.add("              ,(((((((((//////////////(//(((########%%%%######%%##*,       ");
+    	sadDoge.add("              .((((//////////////////((((###########%%%%%%%#%#%%%          ");
+    	sadDoge.add("              .((((/////(/((((((/////(((##########%%%%%%%###%%%%%          ");
+    	sadDoge.add("              .((///////((##(((((((((/((((#######%%&%%%%%%%%%%%%(          ");
+    	sadDoge.add("              *((//////((#%&%#((((((##((((#######%%&&&&%%%%%%%%%*          ");
+    	sadDoge.add("          .,///((//////(##%%%%##(((((((/(((#######%&&&&%%%%%%%%%           ");
+    	sadDoge.add("   *///((((##(#(//////(##%%%&%#(((((((((((((######%&&&&%%%%%%%&*           ");
+    	sadDoge.add(".///((((###(*, *///(//(#####(((((((//////(((###%%#%%%&&&&%%%&&#.            ");
+    	sadDoge.add(" . ..         /(/((((#####((///////////((((###%%#%%&&&&&%#,                ");
+    	sadDoge.add("            *(((((((####(////////////(((((###%%##%&&&%(                    ");
+    	sadDoge.add("   */((#(##((((((((*     ,,,.,//**/(#%((((###%#%/                          ");
+    	sadDoge.add("(%&#((/((#////////*                    /((###%%%.                           ");
+    	sadDoge.add(".#((((//////////                       ,(#(##%%,                            ");
+    	sadDoge.add(" ,#(//((((((.                         /(((####                             ");
+    	sadDoge.add("                                     .,,,,,,,*");;
+    	
+    }
+    
+    public void memeSender(String remoteip, int remoteport) {
+    	for(String d : sadDoge) {
+    		send(nickName,d,remoteip,remoteport);
+    	}
+    }
+    
+    public void memePrinter() {
+    	for(String d : sadDoge) {
+    		System.out.println(d);
+    	}
     }
 
 }

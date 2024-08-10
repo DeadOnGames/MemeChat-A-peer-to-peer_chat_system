@@ -1,5 +1,5 @@
 # MemeChat: A peer-to-peer_chat_system
-A distributed computing system which distributes data and processing throughout the nodes of a connected system in a peer-to-peer architecture.
+A distributed computing system which distributes data and processing throughout the nodes of a connected system in a peer-to-peer architecture. And send memes.
 
 ## Installing and running
 
